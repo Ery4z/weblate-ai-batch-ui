@@ -4,6 +4,7 @@ import {
   ActionIcon,
   Button,
   CheckIcon,
+  Group,
   Textarea,
   Tooltip,
 } from "@mantine/core";
@@ -11,6 +12,7 @@ import { IconAlertCircle, IconCheck, IconRobot } from "@tabler/icons-react";
 interface TranslationEntryProps {
   source: string;
   translation: string;
+  context: string;
   prefill?: string;
   onTranslationChange: (value: string) => void;
   onPrefill: () => void;
@@ -20,6 +22,7 @@ interface TranslationEntryProps {
 const TranslationEntry: React.FC<TranslationEntryProps> = ({
   source,
   translation,
+  context,
   prefill,
   onTranslationChange,
   onPrefill,
@@ -51,7 +54,12 @@ const TranslationEntry: React.FC<TranslationEntryProps> = ({
   return (
     <div className="grid grid-cols-8 gap-3 border border-b-0 border-neutral-600 p-2 min-h-48">
       <div className="col-span-3 flex flex-col">
-        <div className="font-bold text-xs text-neutral-600 mb-2">Original</div>
+          <Group justify="space-between" align="center">
+        <div className="font-bold text-xs text-neutral-600 mb-2">
+          Original
+          </div>
+            <div className="font-bold text-xs text-neutral-600 mb-2">{context}</div>
+          </Group>
         <Textarea
           value={source}
           onChange={(e) => onTranslationChange(e.target.value)}

@@ -13,6 +13,7 @@ interface Translation {
   translation: string;
   url: string;
   prefill?: string;
+  context: string;
 }
 
 interface TranslationBatchProps {
@@ -71,6 +72,7 @@ const TranslationBatch: React.FC<TranslationBatchProps> = ({
         source: unit.source[0],
         translation: unit.target ? unit.target[0] : "",
         url: unit.url,
+        context: unit.context,
       }));
 
       setUntranslatedText(untranslatedUnits);
@@ -172,6 +174,7 @@ const TranslationBatch: React.FC<TranslationBatchProps> = ({
                 value={batchSize.toString()}
                 onChange={(value) => setBatchSize(parseInt(value || "3"))}
                 data={[
+                { value: "1", label: "1 Translations" },
                 { value: "3", label: "3 Translations" },
                 { value: "5", label: "5 Translations" },
                 { value: "10", label: "10 Translations" },
@@ -185,7 +188,9 @@ const TranslationBatch: React.FC<TranslationBatchProps> = ({
             label="Auto Suggest on Display"
             checked={autoSuggest}
             onChange={(event) => setAutoSuggest(event.currentTarget.checked)}
+            className="mb-2"
             />
+            <img src={`https://hosted.weblate.org/widget/${weblateProject}/${weblateComponent}/${weblateLanguage}/svg-badge.svg`} alt="Translation status" />
         </div>
         </Group>
 
@@ -194,6 +199,7 @@ const TranslationBatch: React.FC<TranslationBatchProps> = ({
           key={item.id}
           source={item.source}
           translation={item.translation}
+          context={item.context}
           prefill={item.prefill}
           onTranslationChange={(value) => handleInputChange(index, value)}
           onPrefill={() => handlePrefill(index)}

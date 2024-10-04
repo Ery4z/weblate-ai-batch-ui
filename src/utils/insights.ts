@@ -10,7 +10,7 @@ export const generateInsight = async (
     messages: [
       {
         role: 'system',
-        content: 'Analyze the differences between the prefill and the validated translation, and provide insights to improve future translations.',
+        content: 'Provide a very short (1 line) insight about how to prevent this specific translation error in the future by repeating the modification.',
       },
       {
         role: 'user',
