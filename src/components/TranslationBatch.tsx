@@ -38,7 +38,7 @@ const TranslationBatch: React.FC<TranslationBatchProps> = ({
     setInsights,
 }) => {
     const [untranslatedText, setUntranslatedText] = useState<Translation[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [_, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const [batchSize, setBatchSize] = useState(3); // Default batch size is 3
     const [autoSuggest, setAutoSuggest] = useState(false); // Auto-suggest toggle

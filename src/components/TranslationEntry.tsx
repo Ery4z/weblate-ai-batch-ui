@@ -1,12 +1,5 @@
 import React from "react";
-import {
-    ActionIcon,
-    Button,
-    Textarea,
-    Tooltip,
-    rem,
-    Group,
-} from "@mantine/core";
+import { ActionIcon, Button, Textarea, Tooltip, Group } from "@mantine/core";
 import {
     IconAlertCircle,
     IconCheck,
@@ -27,7 +20,6 @@ const TranslationEntry: React.FC<TranslationEntryProps> = ({
     source,
     translation,
     context,
-    prefill,
     onTranslationChange,
     onPrefill,
     onValidate,
@@ -106,7 +98,7 @@ const TranslationEntry: React.FC<TranslationEntryProps> = ({
                     <Textarea
                         placeholder="Translation goes here..."
                         value={trans}
-                        onChange={(e) =>
+                        onChange={(e: any) =>
                             onTranslationChange(index, e.target.value)
                         }
                         styles={{
