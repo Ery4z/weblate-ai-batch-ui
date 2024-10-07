@@ -6,7 +6,9 @@ import {
     Textarea,
     Group,
     ActionIcon,
+    Select,
 } from "@mantine/core";
+import { getModelsFromOpenRouter, ModelInfo } from "../utils/openrouter";
 
 interface DrawerSettingsProps {
     openrouterApiKey: string;
@@ -56,6 +58,10 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
         useState(weblateLanguage);
     const [localModel, setLocalModel] = useState(model);
     const [localInsights, setLocalInsights] = useState(insights);
+    const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]); // [1
+
+  
+
 
     // Load data from localStorage when the drawer is opened
     useEffect(() => {
@@ -109,6 +115,33 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
         setInsights,
     ]);
 
+    useEffect(() =>  {
+        // Fetch available models when OpenRouter API key is updated
+
+        if (!openrouterApiKey) {
+            if (localStorage.getItem("availableModels")) {
+                try {
+
+                    setAvailableModels(JSON.parse(localStorage.getItem("availableModels") || "[]"));
+                }
+                catch (error) {
+                 setAvailableModels([]);
+                }
+
+            }
+            return;
+        }
+
+        getModelsFromOpenRouter(openrouterApiKey).then((models) => {
+            if (models) {
+                setAvailableModels(models);
+                localStorage.setItem("availableModels", JSON.stringify(availableModels));
+
+            }
+        });
+
+    }, [openrouterApiKey]);
+
     const handleSave = () => {
         // Save to global state
         setOpenrouterApiKey(localOpenrouterApiKey);
@@ -127,7 +160,6 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
         localStorage.setItem("weblateLanguage", localWeblateLanguage);
         localStorage.setItem("model", localModel);
         localStorage.setItem("insights", localInsights);
-
         setDrawerOpened(false);
     };
 
@@ -180,13 +212,19 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
             />
 
             <Group mt="md">
-                <TextInput
+                <Select
                     label="Model"
                     placeholder="Enter a model (e.g., openai/gpt-3.5-turbo)"
                     value={localModel}
                     onChange={(e: any) => setLocalModel(e.target.value)}
                     required
                     style={{ flex: 1 }}
+                    data={availableModels.map((model) => ({
+                        value: model.id,
+                        label: `${model.id} (${Math.round(parseFloat(model.pricing.completion)*1000000*1000)/1000} $/M)`,
+                    }))}
+
+                    searchable
                 />
                 <ActionIcon
                     onClick={() =>

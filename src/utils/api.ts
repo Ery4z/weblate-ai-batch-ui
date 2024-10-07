@@ -68,3 +68,24 @@ export const submitTranslationToWeblate = async (
         return null;
     }
 };
+
+export const fetchFullTranslationFromWeblate = async (
+    project_slug: string,
+    component_slug: string,
+    language_code: string,
+    apiKey: string,
+    query: string = ""
+) => {
+    const response = await fetch(
+        `https://hosted.weblate.org/api/translations/${project_slug}/${component_slug}/${language_code}/file/?format=json${query != "" ? `&q=${query}` : ""}`,
+        {
+            headers: {
+                Authorization: `Token ${apiKey}`,
+                ContentType: "application/json",
+            },
+        }
+    );
+    
+    const responseData = await response.json();
+    return responseData;
+}
