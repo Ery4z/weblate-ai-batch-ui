@@ -7,6 +7,7 @@ import {
     Group,
     ActionIcon,
     Select,
+    Tooltip,
 } from "@mantine/core";
 import { getModelsFromOpenRouter, ModelInfo } from "../utils/openrouter";
 
@@ -27,6 +28,8 @@ interface DrawerSettingsProps {
     setInsights: (insights: string) => void;
     drawerOpened: boolean;
     setDrawerOpened: (opened: boolean) => void;
+    openaiApiKey: string;
+    setOpenaiApiKey: (key: string) => void;
 }
 
 const DrawerSettings: React.FC<DrawerSettingsProps> = ({
@@ -46,6 +49,8 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
     setInsights,
     drawerOpened,
     setDrawerOpened,
+    openaiApiKey,
+    setOpenaiApiKey,
 }) => {
     const [localOpenrouterApiKey, setLocalOpenrouterApiKey] =
         useState(openrouterApiKey);
@@ -59,9 +64,7 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
     const [localModel, setLocalModel] = useState(model);
     const [localInsights, setLocalInsights] = useState(insights);
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]); // [1
-
-  
-
+    const [localOpenaiApiKey, setLocalOpenaiApiKey] = useState(openaiApiKey);
 
     // Load data from localStorage when the drawer is opened
     useEffect(() => {
@@ -70,6 +73,8 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
                 localStorage.getItem("openrouterApiKey") || openrouterApiKey;
             const storedWeblateApiKey =
                 localStorage.getItem("weblateApiKey") || weblateApiKey;
+            const storedOpenaiApiKey =
+                localStorage.getItem("openaiApiKey") || openaiApiKey;
             const storedWeblateProject =
                 localStorage.getItem("weblateProject") || weblateProject;
             const storedWeblateComponent =
@@ -82,6 +87,7 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
             // Set local state with stored values
             setLocalOpenrouterApiKey(storedOpenrouterApiKey);
             setLocalWeblateApiKey(storedWeblateApiKey);
+            setLocalOpenaiApiKey(storedOpenaiApiKey);
             setLocalWeblateProject(storedWeblateProject);
             setLocalWeblateComponent(storedWeblateComponent);
             setLocalWeblateLanguage(storedWeblateLanguage);
@@ -91,6 +97,7 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
             // Update global state as well
             setOpenrouterApiKey(storedOpenrouterApiKey);
             setWeblateApiKey(storedWeblateApiKey);
+            setOpenaiApiKey(storedOpenaiApiKey);
             setWeblateProject(storedWeblateProject);
             setWeblateComponent(storedWeblateComponent);
             setWeblateLanguage(storedWeblateLanguage);
@@ -113,21 +120,24 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
         setWeblateLanguage,
         setModel,
         setInsights,
+        openaiApiKey,
+        setOpenaiApiKey,
     ]);
 
-    useEffect(() =>  {
+    useEffect(() => {
         // Fetch available models when OpenRouter API key is updated
 
         if (!openrouterApiKey) {
             if (localStorage.getItem("availableModels")) {
                 try {
-
-                    setAvailableModels(JSON.parse(localStorage.getItem("availableModels") || "[]"));
+                    setAvailableModels(
+                        JSON.parse(
+                            localStorage.getItem("availableModels") || "[]"
+                        )
+                    );
+                } catch (error) {
+                    setAvailableModels([]);
                 }
-                catch (error) {
-                 setAvailableModels([]);
-                }
-
             }
             return;
         }
@@ -135,11 +145,12 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
         getModelsFromOpenRouter(openrouterApiKey).then((models) => {
             if (models) {
                 setAvailableModels(models);
-                localStorage.setItem("availableModels", JSON.stringify(availableModels));
-
+                localStorage.setItem(
+                    "availableModels",
+                    JSON.stringify(availableModels)
+                );
             }
         });
-
     }, [openrouterApiKey]);
 
     const handleSave = () => {
@@ -154,6 +165,7 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
 
         // Save to localStorage
         localStorage.setItem("openrouterApiKey", localOpenrouterApiKey);
+        localStorage.setItem("openaiApiKey", localOpenaiApiKey);
         localStorage.setItem("weblateApiKey", localWeblateApiKey);
         localStorage.setItem("weblateProject", localWeblateProject);
         localStorage.setItem("weblateComponent", localWeblateComponent);
@@ -171,13 +183,29 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
             padding="xl"
             size="md"
         >
-            <TextInput
-                label="OpenRouter API Key"
-                placeholder="Enter OpenRouter API key"
-                value={localOpenrouterApiKey}
-                onChange={(e: any) => setLocalOpenrouterApiKey(e.target.value)}
-                required
-            />
+            <Tooltip label="Used To translate the units" position="bottom">
+                <TextInput
+                    label="OpenRouter API Key"
+                    placeholder="Enter OpenRouter API key"
+                    value={localOpenrouterApiKey}
+                    onChange={(e: any) =>
+                        setLocalOpenrouterApiKey(e.target.value)
+                    }
+                    required
+                />
+            </Tooltip>
+            <Tooltip
+                label="Optional: Used to generate embeddings for better translations"
+                position="bottom"
+            >
+                <TextInput
+                    label="OpenAI API Key"
+                    placeholder="Enter OpenAI API key"
+                    value={localOpenaiApiKey}
+                    onChange={(e: any) => setLocalOpenaiApiKey(e.target.value)}
+                    mt="md"
+                />
+            </Tooltip>
             <TextInput
                 label="Weblate API Key"
                 placeholder="Enter Weblate API key"
@@ -221,9 +249,14 @@ const DrawerSettings: React.FC<DrawerSettingsProps> = ({
                     style={{ flex: 1 }}
                     data={availableModels.map((model) => ({
                         value: model.id,
-                        label: `${model.id} (${Math.round(parseFloat(model.pricing.completion)*1000000*1000)/1000} $/M)`,
+                        label: `${model.id} (${
+                            Math.round(
+                                parseFloat(model.pricing.completion) *
+                                    1000000 *
+                                    1000
+                            ) / 1000
+                        } $/M)`,
                     }))}
-
                     searchable
                 />
                 <ActionIcon
