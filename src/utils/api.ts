@@ -81,7 +81,7 @@ export const fetchFullTranslationFromWeblate = async (
         {
             headers: {
                 Authorization: `Token ${apiKey}`,
-                ContentType: "application/json",
+                "Content-Type": "application/json",
             },
         }
     );
